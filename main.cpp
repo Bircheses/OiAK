@@ -1,6 +1,10 @@
-#include <iostream>
+#include "Algortihms/SOS.h"
+
+using namespace std;
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    SOS sos(27, 17, 31);
+
+
     return 0;
 }
