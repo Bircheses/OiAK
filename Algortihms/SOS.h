@@ -12,9 +12,9 @@ private:
     unsigned int c = 0;
     unsigned int t[2] = {0,0};
     unsigned int u[2] = {0,0};
-    void fun();
 public:
     SOS(unsigned int a, unsigned int b, unsigned int n);
+    void multiplication();
 };
 
 

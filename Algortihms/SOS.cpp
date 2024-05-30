@@ -8,10 +8,9 @@ SOS::SOS(unsigned int a, unsigned int b, unsigned int n) {
     this->a[0] = a;
     this->b[0] = b;
     this->n[0] = n;
-    fun();
 }
 
-void SOS::fun() {
+void SOS::multiplication() {
     r[0] = 1<<((int)log2(n[0])+1); //znajdujemy pierwsza potege 2 po n
 
 //    a[0]=(a[0]*r[0])%n[0];    //  _ nie potrzeba zamieniać na przestrzeń montgomery'ego jeżeli obydwa a i b < n
