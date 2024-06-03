@@ -2,63 +2,144 @@
 #include <cmath>
 #include <iostream>
 
+#include "StaticFunctions.cpp"
+
 using namespace std;
 
-CIOS::CIOS(unsigned int a, unsigned int b, unsigned int n) {
-    this->a[0] = a;
-    this->b[0] = b;
-    this->n[0] = n;
+CIOS::CIOS(unsigned short* a, unsigned short* b, unsigned short n, int s, int w) {
+    this->s = s;
+    W = pow(2, w) - 1;
+    this->a = new unsigned short[s];
+    this->b = new unsigned short[s];
+    for(int i=0; i<s; i++){
+        this->a[i]=a[i];
+        this->b[i]=b[i];
+    }
+    r = pow(2, s*w);
+    this->n = r - 1;
+    t = new unsigned short[2*s];
+    u = new unsigned short[2*s];
+    for(int i=0; i<2*s; i++){
+        t[i] = 0;
+        u[i] = 0;
+    }
+}
+
+CIOS::~CIOS() {
+    delete [] a;
+    delete [] b;
+    delete [] t;
+    delete [] u;
 }
 
 void CIOS::multiplication() {
-    r[0] = 1<<((int)log2(n[0])+1); //znajdujemy pierwsza potege 2 po n
+    xbinGCD(r, n, &r_, &n_);
+    cout << r_ << " " << n_ << endl;
 
-    //    a[0]=(a[0]*r[0])%n[0];    //  _ nie potrzeba zamieniać na przestrzeń montgomery'ego jeżeli obydwa a i b < n
-    //    b[0]=(b[0]*r[0])%n[0];    //  _
+    n_ = n_ & W;
+//    cout << n_ << endl;
 
-//    BRUTE FORCE SZUKANIE WARTOŚCI DO EUKLIDESA
-    for(int x=0;x<n[0]*n[0];x++){
-        bool end = false;
-        for(int y=0;y<n[0]*n[0];y++){
-            if(x*r[0] - y*n[0] == 1){
-                cout<<"\neuk "<<x<<" "<<y;
-                n_[0]=y;
-                r_[0]=x;
-                end= true;
-                break;
+    for(int i=0;i<s;i++){
+        unsigned int C = 0;
+        unsigned int S;
+        for(int j=0;j<s;j++){
+            S = t[j] + a[j]*b[i] + C;
+            C=0;
+            while (S >= 16) {
+                C++;
+                S -= 16;
             }
-        }
-        if(end){
-            break;
-        }
-    }
-    cout<<"\n"<<n_[0]<<" "<<r_[0]<<endl;
-
-    for (int i = 0; i < 1; i++) {
-        c = 0;
-        for (int j = 0; j < 1; j++) {
-            int S = t[i + j] + a[j] * b[i] + c;
             t[j] = S;
         }
-        int S = t[1] + c;
-        t[1] = S;
-        t[1+1] = c;
-        c = 0;
-        int m = t[0] * n_[0];
-        m = m & (r[0] - 1);
-        cout << "\nWynik: " << t[2] << " " << t[1] << " " << t[0] << " \n";   //wynik
-        for (int j = 0; j < 1; j++){
-            int S = t[j] + m*n[j] + c;
-            t[j] = S;
+//        cout << "mno " << toBinary(t[2]) << " " << toBinary(t[1]) << " " << toBinary(t[0]) << endl;
+        S = t[s] + C;
+        C = 0;
+        while(S>15){
+            C++;
+            S -= 16;
         }
-        cout << "\nWynik: " << t[2] << " " << t[1] << " " << t[0] << " \n";   //wynik
-        S = t[1] + c;
-        t[1] = S;
-        t[1+1] = t[1+1] + c;
-        for (int j = 0; j < 1; j++){
+        t[s] = S;
+        t[s+1] = C;
+        C = 0;
+        unsigned int m = (t[0]*n_)& W;
+        unsigned int temp_n = n;
+//        S = t[0] + m * (n & W);
+//        C=0;
+//        while (S >= 16) {
+//            C++;
+//            S -= 16;
+//        }
+//        for(int j=1; j<s; j++){
+//            S = t[j] + m * (temp_n & W) + C;
+//            C=0;
+//            while (S >= 16) {
+//                C++;
+//                S -= 16;
+//            }
+//            t[j-1]=S;
+//            temp_n = temp_n >> 4;
+//        }
+//        S = t[s]+C;
+//        C=0;
+//        while(S>15){
+//            C++;
+//            S -= 16;
+//        }
+//        t[s-1]=S;
+//        t[s] = t[s+1]+C;
+        for(int j=0; j<s; j++){
+            S = t[j] + m * (temp_n & W) + C;
+            C=0;
+            while (S >= 16) {
+                C++;
+                S -= 16;
+            }
+            t[j] = S;
+            temp_n = temp_n >> 4;
+        }
+        S = t[s] + C;
+        C = 0;
+        if(S>15){
+            C++;
+            S -= 16;
+        }
+        t[s] = S;
+        t[s+1] = t[s+1] + C;
+        for(int j=0; j<=s; j++){
             t[j] = t[j+1];
         }
+//        cout << " " << toBinary(t[2]) << " " << toBinary(t[1]) << " " << toBinary(t[0]) << endl;
+    }
+//    cout << " " << toBinary(t[2]) << " " << toBinary(t[1]) << " " << toBinary(t[0]) << endl;
+
+    for(int i=0;i<s+2;i++){
+        u[i]=t[i];
     }
 
-    cout << "\nWynik: " << t[2] << " " << t[1] << " " << t[0] << " \n";   //wynik
+    unsigned int Borrow = 0;
+    unsigned int temp_n = n;
+    unsigned int Difference = 0;
+    for (int i = 0; i < s+2; i++) {
+//        cout << endl << u[i] << " - " << (temp_n & W) << " - " << Borrow << " DIFF: ";
+        Difference = u[i] - (temp_n & W) - Borrow;
+        Borrow = 0;
+        if (Difference > u[i]) {
+            Borrow++;
+        }
+//        cout << (Difference & W) << " " << Borrow << endl;
+        t[i] = Difference & W;
+//        cout << temp_n << endl;
+        temp_n = temp_n >> 4;
+//        cout << temp_n << endl;
+    }
+    Difference = u[s] - Borrow;
+    if (Difference > u[s]) {
+        Borrow++;
+    }
+    t[s] = Difference;
+    if (Borrow == 0) {
+        cout << toBinary(t[3])<< " " << toBinary(t[2])<< " " << toBinary(t[1]) << " " << toBinary(t[0]) << "t" << endl;
+    } else {
+        cout << toBinary(u[3])<< " " << toBinary(u[2])<< " " << toBinary(u[1]) << " " << toBinary(u[0]) << "u" << endl;
+    }
 }

@@ -2,96 +2,129 @@
 #include <iostream>
 #include <cmath>
 
+#include "StaticFunctions.cpp"
+
 using namespace std;
 
-SOS::SOS(unsigned int a, unsigned int b, unsigned int n) {
-    this->a[0] = a;
-    this->b[0] = b;
-    this->n[0] = n;
+/**
+     * @param a - tablica słów a
+     * @param b - tablica słów b
+     * @param n -
+     * @param s - ilość słów w tablicach a i b
+     * @param w - ilość bitów w jednym słowie
+     */
+SOS::SOS(unsigned short* a, unsigned short* b, unsigned short n, int s, int w) {
+    this->s = s;
+    W = pow(2, w) - 1;
+    this->a = new unsigned short[s];
+    this->b = new unsigned short[s];
+    for(int i=0; i<s; i++){
+        this->a[i]=a[i];
+        this->b[i]=b[i];
+    }
+    r = pow(2, s*w);
+    this->n = r - 1;
+    t = new unsigned short[2*s];
+    u = new unsigned short[2*s];
+    for(int i=0; i<2*s; i++){
+        t[i] = 0;
+        u[i] = 0;
+    }
+}
+
+SOS::~SOS() {
+    delete [] a;
+    delete [] b;
+    delete [] t;
+    delete [] u;
 }
 
 void SOS::multiplication() {
-    r[0] = 1<<((int)log2(n[0])+1); //znajdujemy pierwsza potege 2 po n
+    xbinGCD(r, n, &r_, &n_);
 
-//    a[0]=(a[0]*r[0])%n[0];    //  _ nie potrzeba zamieniać na przestrzeń montgomery'ego jeżeli obydwa a i b < n
-//    b[0]=(b[0]*r[0])%n[0];    //  _
+//    cout << r_ << " " << n_ << endl;
 
-//    BRUTE FORCE SZUKANIE WARTOŚCI DO EUKLIDESA
-    for(int x=0;x<n[0]*n[0];x++){
-        bool end = false;
-        for(int y=0;y<n[0]*n[0];y++){
-            if(x*r[0] - y*n[0] == 1){
-                cout<<"\neuk "<<x<<" "<<y;
-                n_[0]=y;
-                r_[0]=x;
-                end= true;
-                break;
+    n_ = n_ & W;
+//    cout << n_ << endl;
+
+    for (int i = 0; i < s; i++) {
+        int Carry = 0;
+        for (int j = 0; j < s; j++) {
+            int Sum = t[i + j] + a[j] * b[i] + Carry;
+            Carry = 0;
+            while (Sum >= 16) {
+                Carry++;
+                Sum -= 16;
+            }
+            t[i + j] = Sum;
+        }
+        t[i + s] = Carry;
+    }
+
+//    cout << toBinary(t[3]) << " " << toBinary(t[2]) << " " << toBinary(t[1]) << " " << toBinary(t[0]) << endl;
+
+    for (int i = 0; i < s; i++) {
+        unsigned int temp_n = n;
+        unsigned int C = 0;
+        unsigned int m = (t[i] * n_);
+        m = m & W;
+//        cout << "M: " << m << " " << n_ << " t[i]: " << t[i] << endl;
+        for (int j = 0; j < s; j++) {
+            unsigned int Sum = t[i + j] + m * (temp_n & W) + C;
+//            cout << "t[i+j]: " << t[i + j] << " n[j]: " << (temp_n & W) << " C: " << C << endl;
+            C = 0;
+            while (Sum >= 16) {
+                C++;
+                Sum -= 16;
+            }
+//            cout << "i: " << i << " j: " << j << " sum: " << Sum << " C: " << C << endl;
+            t[i + j] = Sum;
+            temp_n = temp_n >> 4;
+        }
+//        cout << t[i + s] << " bb " << C << endl;
+        t[i + s] = t[i + s] + C;
+        for (int j = 0; C != 0; j++) {
+            if (t[i + s + j] > 15) {
+                t[i + s + j] -= 16;
+                t[i + s + j + 1]++;
+                C = 1;
+            } else {
+                C = 0;
             }
         }
-        if(end){
-            break;
+    }
+//    cout << t[3] << " " << t[2] << " " << t[1] << " " << t[0] << endl;
+//    cout << toBinary(t[3]) << " " << toBinary(t[2]) << " " << toBinary(t[1]) << " " << toBinary(t[0]) << endl;
+
+    for (int j = 0; j <= s; j++) {
+        u[j] = t[j + s];
+    }
+
+    unsigned int Borrow = 0;
+    unsigned int temp_n = n;
+    unsigned int Difference = 0;
+    for (int i = 0; i < s; i++) {
+//        cout << endl << u[i] << " - " << (temp_n & W) << " - " << Borrow << " DIFF: ";
+        Difference = u[i] - (temp_n & W) - Borrow;
+        Borrow = 0;
+        if (Difference > u[i]) {
+            Borrow++;
         }
+//        cout << (Difference & W) << " " << Borrow << endl;
+        t[i] = Difference & W;
+//        cout << temp_n << endl;
+        temp_n = temp_n >> 4;
+//        cout << temp_n << endl;
     }
-    cout<<"\n"<<n_[0]<<" "<<r_[0];
-
-    for (int i = 0; i < 1; i++) {                   //  _
-        c = 0;                                      //  |
-        for (int j = 0; j < 1; j++) {               //  |
-            int S = t[i + j] + a[j] * b[i] + c;     //  |
-            if (S < a[j] && S < b[j]) {             //  |   zwykle mnozenie, jezeli liczba sklada sie z 1 - itegera
-                c = 1;                              //  |   to wykona sie tylko raz: a*b+0
-            }                                       //  |
-            t[i + j] = S;                           //  |
-        }                                           //  |
-        t[i + 1] = c;                               //  -
+    Difference = u[s] - Borrow;
+    if (Difference > u[s]) {
+        Borrow++;
     }
-
-    //cout << t[1] << " c" << t[0];
-
-    for (int i = 0; i < 1; i++) {                                   //  _
-        c = 0;                                                      //  |
-        int m = t[i] * n_[0];                                       //  |
-        m = m & (r[0] - 1); //01111 // mod(r)                       //  |
-        //cout << "\n" << t[i] << " " << n_[0] << " " << m << "em"; //  |
-        for (int j = 0; j < 1; j++) {                               //  |
-            int S = t[i + j] + m * n[j] + c;                        //  |
-            if (S < m && S < n[j]) {                                //  |
-                c = 1;                                              //  |
-            }                                                       //  |
-            t[i + j] = S;                                           //  |
-        }                                                           //  |
-        t[i + 1] += c;                                              //  |
-    }                                                               //  -
-
-    //cout << "\nm" << t[1] << " " << t[0] << "\n";
-
-    for (int j = 0; j < 1; j++) {                   //dzielimy przez r np. poprzez ignorowanie poczatkowych bitow
-        //u[j] = t[j]>>(int)log2(r[0]);
-        u[j] = t[j] / r[0];
-    }
-
-    //cout << "\n" << u[0] << " " << u[1] << "\n";
-
-    int B = 0;
-    unsigned int D;
-    for (int i = 0; i < 1; i++) {
-        D = u[i] - n[i] - B;
-        //cout << D << endl;
-        if (D > u[i]) {
-            B = 1;
-        }
-        //cout << D << endl;
-        t[i] = D;
-    }
-    D = u[1] - B;
-    //cout << D << endl;
-    if (D > u[1]) {
-        B = 1;
-    }
-    t[1] = D;
-    if (B == 0) {
-        cout << "\nWynik: " << t[1] << " " << t[0] << " \n";   //wynik
+    t[s] = Difference;
+    if (Borrow == 0) {
+        cout << toBinary(t[1]) << " " << toBinary(t[0]) << " t" << endl;
     } else {
-        cout << "\nWynik: " << u[1] << " " << u[0] << " \n";   //wynik
+        cout << toBinary(u[1]) << " " << toBinary(u[0]) << " u" << endl;
     }
+
 }

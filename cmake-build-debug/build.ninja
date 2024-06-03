@@ -67,6 +67,12 @@ build CMakeFiles/OiAK.dir/Algortihms/CIOS.cpp.obj: CXX_COMPILER__OiAK_unscanned_
   OBJECT_DIR = CMakeFiles\OiAK.dir
   OBJECT_FILE_DIR = CMakeFiles\OiAK.dir\Algortihms
 
+build CMakeFiles/OiAK.dir/Algortihms/StaticFunctions.cpp.obj: CXX_COMPILER__OiAK_unscanned_Debug C$:/Users/Szef/CLionProjects/OiAK/Algortihms/StaticFunctions.cpp || cmake_object_order_depends_target_OiAK
+  DEP_FILE = CMakeFiles\OiAK.dir\Algortihms\StaticFunctions.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\OiAK.dir
+  OBJECT_FILE_DIR = CMakeFiles\OiAK.dir\Algortihms
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target OiAK
@@ -75,7 +81,7 @@ build CMakeFiles/OiAK.dir/Algortihms/CIOS.cpp.obj: CXX_COMPILER__OiAK_unscanned_
 #############################################
 # Link the executable OiAK.exe
 
-build OiAK.exe: CXX_EXECUTABLE_LINKER__OiAK_Debug CMakeFiles/OiAK.dir/main.cpp.obj CMakeFiles/OiAK.dir/Algortihms/SOS.cpp.obj CMakeFiles/OiAK.dir/Algortihms/CIOS.cpp.obj
+build OiAK.exe: CXX_EXECUTABLE_LINKER__OiAK_Debug CMakeFiles/OiAK.dir/main.cpp.obj CMakeFiles/OiAK.dir/Algortihms/SOS.cpp.obj CMakeFiles/OiAK.dir/Algortihms/CIOS.cpp.obj CMakeFiles/OiAK.dir/Algortihms/StaticFunctions.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\OiAK.dir

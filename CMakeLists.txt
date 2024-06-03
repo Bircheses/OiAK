@@ -7,4 +7,6 @@ add_executable(OiAK main.cpp
         Algortihms/SOS.cpp
         Algortihms/SOS.h
         Algortihms/CIOS.cpp
-        Algortihms/CIOS.h)
+        Algortihms/CIOS.h
+        Algortihms/StaticFunctions.cpp
+)

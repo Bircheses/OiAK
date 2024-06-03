@@ -3,17 +3,19 @@
 
 class SOS {
 private:
-    unsigned int a[1];
-    unsigned int b[1];
-    unsigned int n[1];
-    unsigned int n_[1];
-    unsigned int r[1];
-    unsigned int r_[1];
-    unsigned int c = 0;
-    unsigned int t[2] = {0,0};
-    unsigned int u[2] = {0,0};
+    int s;
+    int W;
+    unsigned short* a;
+    unsigned short* b;
+    unsigned short n;
+    unsigned short n_;
+    unsigned short r;
+    unsigned short r_;
+    unsigned short* t;
+    unsigned short* u;
 public:
-    SOS(unsigned int a, unsigned int b, unsigned int n);
+    SOS(unsigned short* a, unsigned short* b, unsigned short n, int s, int w);
+    ~SOS();
     void multiplication();
 };
 
