@@ -34,11 +34,7 @@ CIOS::~CIOS() {
 
 void CIOS::multiplication() {
     xbinGCD(r, n, &r_, &n_);
-    cout << r_ << " " << n_ << endl;
-
     n_ = n_ & W;
-//    cout << n_ << endl;
-
     for(int i=0;i<s;i++){
         unsigned int C = 0;
         unsigned int S;
@@ -51,7 +47,6 @@ void CIOS::multiplication() {
             }
             t[j] = S;
         }
-//        cout << "mno " << toBinary(t[2]) << " " << toBinary(t[1]) << " " << toBinary(t[0]) << endl;
         S = t[s] + C;
         C = 0;
         while(S>15){
@@ -63,30 +58,6 @@ void CIOS::multiplication() {
         C = 0;
         unsigned int m = (t[0]*n_)& W;
         unsigned int temp_n = n;
-//        S = t[0] + m * (n & W);
-//        C=0;
-//        while (S >= 16) {
-//            C++;
-//            S -= 16;
-//        }
-//        for(int j=1; j<s; j++){
-//            S = t[j] + m * (temp_n & W) + C;
-//            C=0;
-//            while (S >= 16) {
-//                C++;
-//                S -= 16;
-//            }
-//            t[j-1]=S;
-//            temp_n = temp_n >> 4;
-//        }
-//        S = t[s]+C;
-//        C=0;
-//        while(S>15){
-//            C++;
-//            S -= 16;
-//        }
-//        t[s-1]=S;
-//        t[s] = t[s+1]+C;
         for(int j=0; j<s; j++){
             S = t[j] + m * (temp_n & W) + C;
             C=0;
@@ -108,29 +79,21 @@ void CIOS::multiplication() {
         for(int j=0; j<=s; j++){
             t[j] = t[j+1];
         }
-//        cout << " " << toBinary(t[2]) << " " << toBinary(t[1]) << " " << toBinary(t[0]) << endl;
     }
-//    cout << " " << toBinary(t[2]) << " " << toBinary(t[1]) << " " << toBinary(t[0]) << endl;
-
     for(int i=0;i<s+2;i++){
         u[i]=t[i];
     }
-
     unsigned int Borrow = 0;
     unsigned int temp_n = n;
     unsigned int Difference = 0;
     for (int i = 0; i < s+2; i++) {
-//        cout << endl << u[i] << " - " << (temp_n & W) << " - " << Borrow << " DIFF: ";
         Difference = u[i] - (temp_n & W) - Borrow;
         Borrow = 0;
         if (Difference > u[i]) {
             Borrow++;
         }
-//        cout << (Difference & W) << " " << Borrow << endl;
         t[i] = Difference & W;
-//        cout << temp_n << endl;
         temp_n = temp_n >> 4;
-//        cout << temp_n << endl;
     }
     Difference = u[s] - Borrow;
     if (Difference > u[s]) {
@@ -138,8 +101,8 @@ void CIOS::multiplication() {
     }
     t[s] = Difference;
     if (Borrow == 0) {
-        cout << toBinary(t[3])<< " " << toBinary(t[2])<< " " << toBinary(t[1]) << " " << toBinary(t[0]) << "t" << endl;
-    } else {
-        cout << toBinary(u[3])<< " " << toBinary(u[2])<< " " << toBinary(u[1]) << " " << toBinary(u[0]) << "u" << endl;
+        cout << toBinary(t[1]) << " " << toBinary(t[0]) << "t" << endl;
+    } else {    
+        cout << toBinary(u[1]) << " " << toBinary(u[0]) << "u" << endl;
     }
 }

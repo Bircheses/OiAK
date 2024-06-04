@@ -9,4 +9,6 @@ add_executable(OiAK main.cpp
         Algortihms/CIOS.cpp
         Algortihms/CIOS.h
         Algortihms/StaticFunctions.cpp
+        Algortihms/Counter.cpp
+        Algortihms/Counter.h
 )

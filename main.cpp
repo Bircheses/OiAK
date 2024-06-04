@@ -2,6 +2,7 @@
 
 #include "Algortihms/SOS.h"
 #include "Algortihms/CIOS.h"
+#include "Algortihms/Counter.h"
 
 using namespace std;
 
@@ -13,12 +14,19 @@ int main() {
     unsigned short a[2] = {6,2}; //(0110 0010)
     unsigned short b[2] = {5,3}; //(0101 0011)
 
+    Counter counter;
 
     SOS sos(a,b,0,s,w);
+    counter.start();
     sos.multiplication();
+    counter.stop();
+    cout << counter.getElapsedTime() << endl;
 
     CIOS cios(a,b,0,s,w);
+    counter.start();
     cios.multiplication();
+    counter.stop();
+    cout << counter.getElapsedTime() << endl;
 
     return 0;
 }
