@@ -2,6 +2,7 @@
 #include <bitset>
 
 typedef unsigned long long uint64;
+typedef unsigned int uint32_t;
 
 using namespace std;
 
@@ -49,8 +50,8 @@ static C_M mulc (uint32_t a, uint32_t b){
     s2 = lo(x);
     s3 = hi(x);
 
-    result.Mul = s1 << 32 | s0;
-    result.Carry = s3 << 32 | s2;
+    result.Mul = s1 << 16 | s0;
+    result.Carry = s3 << 16 | s2;
     return result;
 }
 
@@ -61,7 +62,7 @@ static string toBinary(int n) {
 }
 
 static void xbinGCD(uint64 a, uint64 b, uint64* pu, uint64* pv){
-    unsigned short alpha, beta, u, v;
+    uint64 alpha, beta, u, v;
     u = 1; v = 0;
     alpha = a; beta = b;
     while (a > 0) {

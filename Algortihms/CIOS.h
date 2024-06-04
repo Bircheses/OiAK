@@ -5,16 +5,16 @@ class CIOS {
 private:
     int s;
     int W;
-    unsigned short* a;
-    unsigned short* b;
-    unsigned short n;
-    unsigned short n_;
-    unsigned short r;
-    unsigned short r_;
-    unsigned short* t;
-    unsigned short* u;
+    unsigned int* a;
+    unsigned int* b;
+    unsigned long long int n;
+    unsigned long long int n_;
+    unsigned long long int r;
+    unsigned long long int r_;
+    unsigned int* t;
+    unsigned int* u;
 public:
-    CIOS(unsigned short* a, unsigned short* b, unsigned short n, int s, int w);
+    CIOS(unsigned int* a, unsigned int* b, unsigned long long int n, int s, int w);
     ~CIOS();
     void multiplication();
 };

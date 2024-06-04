@@ -6,19 +6,19 @@
 
 using namespace std;
 
-CIOS::CIOS(unsigned short* a, unsigned short* b, unsigned short n, int s, int w) {
+CIOS::CIOS(unsigned int* a, unsigned int* b, unsigned long long int n, int s, int w) {
     this->s = s;
     W = pow(2, w) - 1;
-    this->a = new unsigned short[s];
-    this->b = new unsigned short[s];
+    this->a = new unsigned int[s];
+    this->b = new unsigned int[s];
     for(int i=0; i<s; i++){
         this->a[i]=a[i];
         this->b[i]=b[i];
     }
     r = pow(2, s*w);
     this->n = r - 1;
-    t = new unsigned short[2*s];
-    u = new unsigned short[2*s];
+    t = new unsigned int[2*s];
+    u = new unsigned int[2*s];
     for(int i=0; i<2*s; i++){
         t[i] = 0;
         u[i] = 0;

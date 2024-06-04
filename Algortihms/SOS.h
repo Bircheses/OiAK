@@ -7,17 +7,17 @@ class SOS {
 private:
     int s;
     int W;
-    uint64* a;
-    uint64* b;
-    uint64 n;
-    uint64 n_;
-    uint64 r;
-    uint64 r_;
-    uint64* t;
-    uint64* u;
+    unsigned int* a;
+    unsigned int* b;
+    unsigned long long int n;
+    unsigned long long int n_;
+    unsigned long long int r;
+    unsigned long long int r_;
+    unsigned int* t;
+    unsigned int* u;
     const int w =  64; //64 bitowa liczba
 public:
-    SOS(const uint64* a, const uint64* b, uint64 n, int s);
+    SOS(const unsigned int* a, const unsigned int* b, unsigned long long int n, int s, int w);
     ~SOS();
     void multiplication();
 };
