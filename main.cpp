@@ -1,9 +1,14 @@
 #include <cstdio>
 #include "Counter.h"
+#include <iostream>
+#include "cmath"
+
+typedef unsigned char uchar;
+typedef unsigned short ushort;
 
 // Function to implement extended Euclidean algorithm, accepts r/2 instead of r
-uint32_t xbinGCD(uint32_t a, uint32_t b){
-    uint32_t alpha, beta, u, v;
+uchar xbinGCD(long long int a, long long int b){
+    long long int alpha, beta, u, v;
     u = 1; v = 0;
     alpha = a; beta = b;
     while (a > 0) {
@@ -20,9 +25,9 @@ uint32_t xbinGCD(uint32_t a, uint32_t b){
 }
 
 // Function to perform Montgomery multiplication using the CIOS approach
-void CIOS(uint32_t *res, const uint32_t *a, const uint32_t *b, const uint32_t *n, uint32_t n0_prime, uint32_t len) {
-    uint64_t t[2*len+1];
-    uint32_t i, j;
+void CIOS(uchar *res, const uchar *a, const uchar *b, const uchar *n, uchar n0_prime, uchar len) {
+    ushort t[2*len+1];
+    uchar i, j;
 
     for (i=0; i<2*len+1; i++) {
         t[i] = 0;
@@ -30,37 +35,37 @@ void CIOS(uint32_t *res, const uint32_t *a, const uint32_t *b, const uint32_t *n
 
     // algorithm
     for (i=0; i<len; i++) {
-        uint64_t C = 0;
+        ushort C = 0;
         for (j=0; j<len; j++) {
-            uint64_t prod = (uint64_t)a[j] * b[i] + t[j] + C;
-            t[j] = (uint32_t)prod;
-            C = prod >> 32;
+            ushort prod = (ushort)a[j] * b[i] + t[j] + C;
+            t[j] = (uchar)prod;
+            C = prod >> 8;
         }
-        uint64_t prod = t[len] + C;
-        t[len] = (uint32_t)prod;
-        t[len+1] = prod >> 32;
-        uint32_t m = (uint32_t)((uint64_t)t[0] * n0_prime);
-        prod = (uint64_t)t[0] + (uint64_t)m * n[0];
-        C = prod >> 32;
+        ushort prod = t[len] + C;
+        t[len] = (uchar)prod;
+        t[len+1] = prod >> 8;
+        uchar m = (uchar)((ushort)t[0] * n0_prime);
+        prod = (ushort)t[0] + (ushort)m * n[0];
+        C = prod >> 8;
         for (j=1; j<len; j++) {
-            prod = (uint64_t)t[j] + (uint64_t)m * n[j] + C;
-            t[j-1] = (uint32_t)prod;
-            C = prod >> 32;
+            prod = (ushort)t[j] + (ushort)m * n[j] + C;
+            t[j-1] = (uchar)prod;
+            C = prod >> 8;
         }
-        prod = (uint64_t)t[len] + C;
-        t[len-1] = (uint32_t)prod;
-        t[len] = (t[len+1] + (prod >> 32));
+        prod = (ushort)t[len] + C;
+        t[len-1] = (uchar)prod;
+        t[len] = (t[len+1] + (prod >> 8));
     }
 
     // Step 3
     for (i=0; i<len; i++) {
         res[i] = t[i];
     }
-    uint64_t borrow = 0;
+    ushort borrow = 0;
     for (i=0; i<len; i++) {
-        uint64_t diff = (uint64_t)res[i] - n[i] - borrow;
-        res[i] = (uint32_t)diff;
-        borrow = (diff >> 32) & 1;
+        ushort diff = (ushort)res[i] - n[i] - borrow;
+        res[i] = (uchar)diff;
+        borrow = (diff >> 8) & 1;
     }
     if (borrow) {
         for (i=0; i<len; i++) {
@@ -70,9 +75,9 @@ void CIOS(uint32_t *res, const uint32_t *a, const uint32_t *b, const uint32_t *n
 }
 
 // Function to perform Montgomery multiplication using the SOS approach
-void SOS(uint32_t *res, const uint32_t *a, const uint32_t *b, const uint32_t *n, uint32_t n0_prime, uint32_t len) {
-    uint64_t t[2*len];
-    uint32_t i, j;
+void SOS(uchar *res, const uchar *a, const uchar *b, const uchar *n, uchar n0_prime, uchar len) {
+    ushort t[2*len];
+    uchar i, j;
 
     for (i=0; i<2*len; i++) {
         t[i] = 0;
@@ -80,36 +85,36 @@ void SOS(uint32_t *res, const uint32_t *a, const uint32_t *b, const uint32_t *n,
 
     // algorithm
     for (i=0; i<len; i++) {
-        uint64_t C = 0;
+        ushort C = 0;
         for (j=0; j<len; j++) {
-            uint64_t prod = (uint64_t)a[j] * b[i] + t[i+j] + C;
-            t[i+j] = (uint32_t)prod;
-            C = prod >> 32;
+            ushort prod = (ushort)a[j] * b[i] + t[i+j] + C;
+            t[i+j] = (uchar)prod;
+            C = prod >> 8;
         }
         t[i + len] = C;
     }
     for (i=0; i<len; i++) {
-        uint64_t C = 0;
-        uint32_t m = (uint32_t)((uint64_t)t[i] * n0_prime);
+        ushort C = 0;
+        uchar m = (uchar)((ushort)t[i] * n0_prime);
         for (j=0; j<len; j++) {
-            uint64_t prod = (uint64_t)m * n[j] + t[i+j] + C;
-            t[i+j] = (uint32_t)prod;
-            C = prod >> 32;
+            ushort prod = (ushort)m * n[j] + t[i+j] + C;
+            t[i+j] = (uchar)prod;
+            C = prod >> 8;
         }
-        uint64_t sum = (uint64_t)t[i+len] + C;
-        t[i+len] = (uint32_t)sum;
-        t[i+len+1] += sum >> 32;
+        ushort sum = (ushort)t[i+len] + C;
+        t[i+len] = (uchar)sum;
+        t[i+len+1] += sum >> 8;
     }
 
     // Step 3
     for (i=0; i<len; i++) {
         res[i] = t[i+len];
     }
-    uint64_t borrow = 0;
+    ushort borrow = 0;
     for (i=0; i<len; i++) {
-        uint64_t diff = (uint64_t)res[i] - n[i] - borrow;
-        res[i] = (uint32_t)diff;
-        borrow = (diff >> 32) & 1;
+        ushort diff = (ushort)res[i] - n[i] - borrow;
+        res[i] = (uchar)diff;
+        borrow = (diff >> 8) & 1;
     }
     if (borrow) {
         for (i=0; i<len; i++) {
@@ -120,25 +125,31 @@ void SOS(uint32_t *res, const uint32_t *a, const uint32_t *b, const uint32_t *n,
 
 
 // Utility function to print an array of integers
-void print_array(const char *name, const uint32_t *arr, uint32_t len) {
+void print_array(const char *name, const uchar *arr, uchar len) {
     printf("%s = ", name);
-    for (uint32_t i = 0; i < len; i++) {
-        printf("%08x ", arr[len - 1 - i]);
+    for (uchar i = 0; i < len; i++) {
+        printf("%02x ", arr[len - 1 - i]);
     }
     printf("\n");
 }
 
 int main() {
-    uint32_t len = 4;  // Example length (number of 32-bit words)
+    uchar len = 4;  // Example length (number of 8-bit words)
 
     Counter counter;
 
-    uint32_t a[] = {0x12345678, 0x23456789, 0x3456789a, 0x456789ab};
-    uint32_t b[] = {0xabcdef01, 0xbcdef012, 0xcdef0123, 0xdef01234};
-    uint32_t n[] = {0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff};
+    uchar a[] = {0x78, 0x89, 0x9a, 0x6b};
+    uchar b[] = {0x01, 0x12, 0x23, 0x34};
+    uchar n[] = {0xff, 0xff, 0xff, 0xff};
 
-    uint32_t n0_prime = xbinGCD(0x10000000, n[0]);
-    uint32_t res[len];
+    long long int n_1 = 0xfffffff1;
+    long long int r =  pow(2,len*8-1);
+    uchar n0_prime = xbinGCD(r, n_1);
+    for(int i=0;i<len;i++){
+        n[i]= (uchar) n_1;
+        n_1 = n_1 >> 8;
+    }
+    uchar res[len];
 
     counter.start();
     CIOS(res, a, b, n, n0_prime, len);
